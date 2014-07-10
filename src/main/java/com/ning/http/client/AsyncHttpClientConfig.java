@@ -19,6 +19,7 @@ import com.ning.http.client.filter.IOExceptionFilter;
 import com.ning.http.client.filter.RequestFilter;
 import com.ning.http.client.filter.ResponseFilter;
 import com.ning.http.util.AllowAllHostnameVerifier;
+import com.ning.http.util.DefaultHostnameVerifier;
 import com.ning.http.util.ProxyUtils;
 
 import javax.net.ssl.HostnameVerifier;
@@ -540,7 +541,7 @@ public class AsyncHttpClientConfig {
         private boolean allowSslConnectionPool = true;
         private boolean useRawUrl = false;
         private boolean removeQueryParamOnRedirect = true;
-        private HostnameVerifier hostnameVerifier = new AllowAllHostnameVerifier();
+        private HostnameVerifier hostnameVerifier = new DefaultHostnameVerifier();
         private int ioThreadMultiplier = 2;
         private boolean strict302Handling;
         private boolean rfc6265CookieEncoding;
