@@ -68,7 +68,6 @@ public class AsyncHttpClientConfig {
     protected ExecutorService applicationThreadPool;
     protected ProxyServerSelector proxyServerSelector;
     protected SSLContext sslContext;
-    protected SSLEngineFactory sslEngineFactory;
     protected AsyncHttpProviderConfig<?, ?> providerConfig;
     protected ConnectionsPool<?, ?> connectionsPool;
     protected Realm realm;
@@ -86,6 +85,7 @@ public class AsyncHttpClientConfig {
     protected boolean useRelativeURIsWithSSLProxies;
     protected int maxConnectionLifeTimeInMs;
     protected boolean rfc6265CookieEncoding;
+    protected boolean acceptAnyCertificate;
 
     protected AsyncHttpClientConfig() {
     }
@@ -107,7 +107,6 @@ public class AsyncHttpClientConfig {
                                   ExecutorService applicationThreadPool,
                                   ProxyServerSelector proxyServerSelector,
                                   SSLContext sslContext,
-                                  SSLEngineFactory sslEngineFactory,
                                   AsyncHttpProviderConfig<?, ?> providerConfig,
                                   ConnectionsPool<?, ?> connectionsPool, Realm realm,
                                   List<RequestFilter> requestFilters,
@@ -122,7 +121,8 @@ public class AsyncHttpClientConfig {
                                   int ioThreadMultiplier,
                                   boolean strict302Handling,
                                   boolean useRelativeURIsWithSSLProxies,
-                                  boolean rfc6265CookieEncoding) {
+                                  boolean rfc6265CookieEncoding,
+                                  boolean acceptAnyCertificate) {
 
         this.maxTotalConnections = maxTotalConnections;
         this.maxConnectionPerHost = maxConnectionPerHost;
@@ -138,7 +138,6 @@ public class AsyncHttpClientConfig {
         this.userAgent = userAgent;
         this.allowPoolingConnection = keepAlive;
         this.sslContext = sslContext;
-        this.sslEngineFactory = sslEngineFactory;
         this.providerConfig = providerConfig;
         this.connectionsPool = connectionsPool;
         this.realm = realm;
@@ -154,6 +153,7 @@ public class AsyncHttpClientConfig {
         this.strict302Handling = strict302Handling;
         this.useRelativeURIsWithSSLProxies = useRelativeURIsWithSSLProxies;
         this.rfc6265CookieEncoding = rfc6265CookieEncoding;
+        this.acceptAnyCertificate = acceptAnyCertificate;
 
         if (applicationThreadPool == null) {
             this.applicationThreadPool = Executors.newCachedThreadPool();
@@ -319,28 +319,6 @@ public class AsyncHttpClientConfig {
      */
     public ConnectionsPool<?, ?> getConnectionsPool() {
         return connectionsPool;
-    }
-
-    /**
-     * Return an instance of {@link SSLEngineFactory} used for SSL connection.
-     *
-     * @return an instance of {@link SSLEngineFactory} used for SSL connection.
-     */
-    public SSLEngineFactory getSSLEngineFactory() {
-        if (sslEngineFactory == null) {
-            return new SSLEngineFactory() {
-                public SSLEngine newSSLEngine() {
-                    if (sslContext != null) {
-                        SSLEngine sslEngine = sslContext.createSSLEngine();
-                        sslEngine.setUseClientMode(true);
-                        return sslEngine;
-                    } else {
-                        return null;
-                    }
-                }
-            };
-        }
-        return sslEngineFactory;
     }
 
     /**
@@ -523,6 +501,10 @@ public class AsyncHttpClientConfig {
         return rfc6265CookieEncoding;
     }
 
+    public boolean isAcceptAnyCertificate() {
+        return acceptAnyCertificate;
+    }
+
     /**
      * Builder for an {@link AsyncHttpClient}
      */
@@ -547,7 +529,6 @@ public class AsyncHttpClientConfig {
         private ExecutorService applicationThreadPool;
         private ProxyServerSelector proxyServerSelector = null;
         private SSLContext sslContext;
-        private SSLEngineFactory sslEngineFactory;
         private AsyncHttpProviderConfig<?, ?> providerConfig;
         private ConnectionsPool<?, ?> connectionsPool;
         private Realm realm;
@@ -563,6 +544,7 @@ public class AsyncHttpClientConfig {
         private int ioThreadMultiplier = 2;
         private boolean strict302Handling;
         private boolean rfc6265CookieEncoding;
+        private boolean acceptAnyCertificate = Boolean.getBoolean(ASYNC_CLIENT + "acceptAnyCertificate");
 
         public Builder() {
         }
@@ -763,30 +745,12 @@ public class AsyncHttpClientConfig {
         }
 
         /**
-         * Set the {@link SSLEngineFactory} for secure connection.
-         *
-         * @param sslEngineFactory the {@link SSLEngineFactory} for secure connection
-         * @return a {@link Builder}
-         */
-        public Builder setSSLEngineFactory(SSLEngineFactory sslEngineFactory) {
-            this.sslEngineFactory = sslEngineFactory;
-            return this;
-        }
-
-        /**
          * Set the {@link SSLContext} for secure connection.
          *
          * @param sslContext the {@link SSLContext} for secure connection
          * @return a {@link Builder}
          */
         public Builder setSSLContext(final SSLContext sslContext) {
-            this.sslEngineFactory = new SSLEngineFactory() {
-                public SSLEngine newSSLEngine() throws GeneralSecurityException {
-                    SSLEngine sslEngine = sslContext.createSSLEngine();
-                    sslEngine.setUseClientMode(true);
-                    return sslEngine;
-                }
-            };
             this.sslContext = sslContext;
             return this;
         }
@@ -1043,6 +1007,11 @@ public class AsyncHttpClientConfig {
            return this;
         }
 
+        public Builder setAcceptAnyCertificates(boolean acceptAnyCertificate) {
+            this.acceptAnyCertificate = acceptAnyCertificate;
+            return this;
+        }
+
         /**
          * Configures this AHC instance to use RFC 6265 cookie encoding style
          *
@@ -1076,7 +1045,6 @@ public class AsyncHttpClientConfig {
             realm = prototype.getRealm();
             defaultRequestTimeoutInMs = prototype.getRequestTimeoutInMs();
             sslContext = prototype.getSSLContext();
-            sslEngineFactory = prototype.getSSLEngineFactory();
             userAgent = prototype.getUserAgent();
             redirectEnabled = prototype.isRedirectEnabled();
             compressionEnabled = prototype.isCompressionEnabled();
@@ -1099,6 +1067,7 @@ public class AsyncHttpClientConfig {
             hostnameVerifier = prototype.getHostnameVerifier();
             strict302Handling = prototype.isStrict302Handling();
             rfc6265CookieEncoding = prototype.isRfc6265CookieEncoding();
+            acceptAnyCertificate = prototype.acceptAnyCertificate;
         }
 
         /**
@@ -1160,7 +1129,6 @@ public class AsyncHttpClientConfig {
                     applicationThreadPool,
                     proxyServerSelector,
                     sslContext,
-                    sslEngineFactory,
                     providerConfig,
                     connectionsPool,
                     realm,
@@ -1176,7 +1144,8 @@ public class AsyncHttpClientConfig {
                     ioThreadMultiplier,
                     strict302Handling,
                     useRelativeURIsWithSSLProxies,
-                    rfc6265CookieEncoding);
+                    rfc6265CookieEncoding,
+                    acceptAnyCertificate);
         }
     }
 }
