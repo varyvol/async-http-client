@@ -584,6 +584,16 @@ public class AsyncHttpClientConfig {
         }
 
         /**
+         * Set the maximum time in millisecond an {@link com.ning.http.client.AsyncHttpClient} can wait when connecting to a remote host
+         *
+         * @param defaultConnectionTimeOutInMs the maximum time in millisecond an {@link com.ning.http.client.AsyncHttpClient} can wait when connecting to a remote host
+         * @return a {@link Builder}
+         */
+        public Builder setConnectTimeout(int connectTimeout) {
+            return setConnectionTimeoutInMs(connectTimeout);
+        }
+
+        /**
          * Set the maximum time in millisecond an {@link com.ning.http.client.websocket.WebSocket} can stay idle.
          *
          * @param defaultWebSocketIdleTimeoutInMs
@@ -622,6 +632,17 @@ public class AsyncHttpClientConfig {
         }
 
         /**
+         * Set the maximum time in millisecond an {@link com.ning.http.client.AsyncHttpClient} can stay idle.
+         *
+         * @param defaultIdleConnectionTimeoutInMs
+         *         the maximum time in millisecond an {@link com.ning.http.client.AsyncHttpClient} can stay idle.
+         * @return a {@link Builder}
+         */
+        public Builder setReadTimeout(int readTimeout) {
+            return setIdleConnectionTimeoutInMs(readTimeout);
+        }
+
+        /**
          * Set the maximum time in millisecond an {@link com.ning.http.client.AsyncHttpClient} wait for a response
          *
          * @param defaultRequestTimeoutInMs the maximum time in millisecond an {@link com.ning.http.client.AsyncHttpClient} wait for a response
@@ -630,6 +651,16 @@ public class AsyncHttpClientConfig {
         public Builder setRequestTimeoutInMs(int defaultRequestTimeoutInMs) {
             this.defaultRequestTimeoutInMs = defaultRequestTimeoutInMs;
             return this;
+        }
+
+        /**
+         * Set the maximum time in millisecond an {@link com.ning.http.client.AsyncHttpClient} wait for a response
+         *
+         * @param defaultRequestTimeoutInMs the maximum time in millisecond an {@link com.ning.http.client.AsyncHttpClient} wait for a response
+         * @return a {@link Builder}
+         */
+        public Builder setRequestTimeout(int requestTimeout) {
+            return setRequestTimeoutInMs(requestTimeout);
         }
 
         /**
