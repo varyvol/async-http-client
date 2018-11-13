@@ -508,7 +508,7 @@ public abstract class AsyncStreamHandlerTest extends AbstractBasicTest {
                     Assert.assertNotNull(h);
                     String result = h.getJoinedValue("Allow", ", ");
                     String[] resultParts = result.split(",");
-                    String[] expected = "OPTIONS,GET,HEAD,POST,TRACE".split(",");
+                    String[] expected = "OPTIONS,GET,HEAD,POST".split(",");
                     Arrays.sort(resultParts);
                     Arrays.sort(expected);
                     Assert.assertEquals(expected, resultParts);
