@@ -1,0 +1,14 @@
+= How to release this in Jenkins environment
+
+See the `run-maven.sh` shell script to run a Docker container with the right environment.
+Then, if you already have the right Maven settings.xml files, you should be able to
+run any command there as you usually do.
+
+[source,shell]
+---
+$ ./run-maven-env.sh
+Using /home/tiste/.m2/settings.xml file found.
+Using /home/tiste/.m2/settings-security.xml file found.
+root@9991335b6e8a:/work# mvn clean deploy -DskipTests # Example to check one can deploy SNAPSHOTs
+[INFO] Scanning for projects...
+---
