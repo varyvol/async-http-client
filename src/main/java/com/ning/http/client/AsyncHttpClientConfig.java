@@ -25,6 +25,7 @@ import com.ning.http.util.ProxyUtils;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
+import javax.net.ssl.SSLSession;
 import java.security.GeneralSecurityException;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -446,6 +447,17 @@ public class AsyncHttpClientConfig {
      * @return the {@link HostnameVerifier}
      */
     public HostnameVerifier getHostnameVerifier() {
+        if (hostnameVerifier == null) {
+            synchronized (this) {
+                if (hostnameVerifier == null)
+                    hostnameVerifier = acceptAnyCertificate ? new HostnameVerifier() {
+                        @Override
+                        public boolean verify(String hostname, SSLSession session) {
+                            return true;
+                        }
+                    } : new DefaultHostnameVerifier();
+            }
+        }
         return hostnameVerifier;
     }
 
