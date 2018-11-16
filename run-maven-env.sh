@@ -26,7 +26,7 @@ then
 	echo "Using $MAVEN_SETTINGS_SECURITY file found."
     MAVEN_FILES_MOUNTS="$MAVEN_FILES_MOUNTS -v $MAVEN_SETTINGS_SECURITY:/root/.m2/settings-security.xml:ro "
 else
-   	echo "Maven settings.xml file not found, it's requird for credentials. Stopping."
+   	echo "Maven settings.xml file not found, it's required for credentials. Stopping."
     exit 2
 fi
 
