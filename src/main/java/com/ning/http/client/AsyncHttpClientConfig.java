@@ -598,7 +598,7 @@ public class AsyncHttpClientConfig {
         /**
          * Set the maximum time in millisecond an {@link com.ning.http.client.AsyncHttpClient} can wait when connecting to a remote host
          *
-         * @param defaultConnectionTimeOutInMs the maximum time in millisecond an {@link com.ning.http.client.AsyncHttpClient} can wait when connecting to a remote host
+         * @param connectTimeout the maximum time in millisecond an {@link com.ning.http.client.AsyncHttpClient} can wait when connecting to a remote host
          * @return a {@link Builder}
          */
         public Builder setConnectTimeout(int connectTimeout) {
@@ -646,7 +646,7 @@ public class AsyncHttpClientConfig {
         /**
          * Set the maximum time in millisecond an {@link com.ning.http.client.AsyncHttpClient} can stay idle.
          *
-         * @param defaultIdleConnectionTimeoutInMs
+         * @param readTimeout
          *         the maximum time in millisecond an {@link com.ning.http.client.AsyncHttpClient} can stay idle.
          * @return a {@link Builder}
          */
@@ -668,7 +668,7 @@ public class AsyncHttpClientConfig {
         /**
          * Set the maximum time in millisecond an {@link com.ning.http.client.AsyncHttpClient} wait for a response
          *
-         * @param defaultRequestTimeoutInMs the maximum time in millisecond an {@link com.ning.http.client.AsyncHttpClient} wait for a response
+         * @param requestTimeout the maximum time in millisecond an {@link com.ning.http.client.AsyncHttpClient} wait for a response
          * @return a {@link Builder}
          */
         public Builder setRequestTimeout(int requestTimeout) {

@@ -1,7 +1,7 @@
 = How to release this in Jenkins environment
 
 See the `run-maven.sh` shell script to run a Docker container with the right environment.
-Then, if you already have the right Maven settings.xml files, you should be able to
+Then, if you already have the right Maven settings*.xml files, you should be able to
 run any command there as you usually do.
 
 [source,shell]
