@@ -18,14 +18,12 @@ package com.ning.http.client;
 import com.ning.http.client.filter.IOExceptionFilter;
 import com.ning.http.client.filter.RequestFilter;
 import com.ning.http.client.filter.ResponseFilter;
-import com.ning.http.util.AllowAllHostnameVerifier;
 import com.ning.http.util.DefaultHostnameVerifier;
 import com.ning.http.util.ProxyUtils;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLEngine;
-import java.security.GeneralSecurityException;
+import javax.net.ssl.SSLSession;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -446,6 +444,17 @@ public class AsyncHttpClientConfig {
      * @return the {@link HostnameVerifier}
      */
     public HostnameVerifier getHostnameVerifier() {
+        if (hostnameVerifier == null) {
+            synchronized (this) {
+                if (hostnameVerifier == null)
+                    hostnameVerifier = acceptAnyCertificate ? new HostnameVerifier() {
+                        @Override
+                        public boolean verify(String hostname, SSLSession session) {
+                            return true;
+                        }
+                    } : new DefaultHostnameVerifier();
+            }
+        }
         return hostnameVerifier;
     }
 
@@ -586,7 +595,7 @@ public class AsyncHttpClientConfig {
         /**
          * Set the maximum time in millisecond an {@link com.ning.http.client.AsyncHttpClient} can wait when connecting to a remote host
          *
-         * @param defaultConnectionTimeOutInMs the maximum time in millisecond an {@link com.ning.http.client.AsyncHttpClient} can wait when connecting to a remote host
+         * @param connectTimeout the maximum time in millisecond an {@link com.ning.http.client.AsyncHttpClient} can wait when connecting to a remote host
          * @return a {@link Builder}
          */
         public Builder setConnectTimeout(int connectTimeout) {
@@ -634,7 +643,7 @@ public class AsyncHttpClientConfig {
         /**
          * Set the maximum time in millisecond an {@link com.ning.http.client.AsyncHttpClient} can stay idle.
          *
-         * @param defaultIdleConnectionTimeoutInMs
+         * @param readTimeout
          *         the maximum time in millisecond an {@link com.ning.http.client.AsyncHttpClient} can stay idle.
          * @return a {@link Builder}
          */
@@ -656,7 +665,7 @@ public class AsyncHttpClientConfig {
         /**
          * Set the maximum time in millisecond an {@link com.ning.http.client.AsyncHttpClient} wait for a response
          *
-         * @param defaultRequestTimeoutInMs the maximum time in millisecond an {@link com.ning.http.client.AsyncHttpClient} wait for a response
+         * @param requestTimeout the maximum time in millisecond an {@link com.ning.http.client.AsyncHttpClient} wait for a response
          * @return a {@link Builder}
          */
         public Builder setRequestTimeout(int requestTimeout) {

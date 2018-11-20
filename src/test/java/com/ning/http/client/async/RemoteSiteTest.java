@@ -66,7 +66,7 @@ public abstract class RemoteSiteTest extends AbstractBasicTest {
         try {
             Response response = c.prepareGet("http://mail.google.com/").execute().get(10, TimeUnit.SECONDS);
             assertNotNull(response);
-            assertEquals(response.getStatusCode(), 200);
+            assertEquals(response.getStatusCode(), 301);
         } finally {
             c.close();
         }
@@ -204,7 +204,7 @@ public abstract class RemoteSiteTest extends AbstractBasicTest {
         AsyncHttpClient client = getAsyncHttpClient(null);
         try {
             Response response = client.prepareGet("http://www.meetup.com/stackoverflow/Mountain-View-CA/").execute().get();
-            Assert.assertEquals(response.getStatusCode(), 200);
+            Assert.assertEquals(response.getStatusCode(), 301);
         } finally {
             client.close();
         }
