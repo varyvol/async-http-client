@@ -18,13 +18,12 @@ package com.ning.http.client;
 import com.ning.http.client.filter.IOExceptionFilter;
 import com.ning.http.client.filter.RequestFilter;
 import com.ning.http.client.filter.ResponseFilter;
-import com.ning.http.util.AllowAllHostnameVerifier;
+import com.ning.http.util.DefaultHostnameVerifier;
 import com.ning.http.util.ProxyUtils;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLEngine;
-import java.security.GeneralSecurityException;
+import javax.net.ssl.SSLSession;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -68,7 +67,6 @@ public class AsyncHttpClientConfig {
     protected ExecutorService applicationThreadPool;
     protected ProxyServerSelector proxyServerSelector;
     protected SSLContext sslContext;
-    protected SSLEngineFactory sslEngineFactory;
     protected AsyncHttpProviderConfig<?, ?> providerConfig;
     protected ConnectionsPool<?, ?> connectionsPool;
     protected Realm realm;
@@ -86,6 +84,7 @@ public class AsyncHttpClientConfig {
     protected boolean useRelativeURIsWithSSLProxies;
     protected int maxConnectionLifeTimeInMs;
     protected boolean rfc6265CookieEncoding;
+    protected boolean acceptAnyCertificate;
 
     protected AsyncHttpClientConfig() {
     }
@@ -107,7 +106,6 @@ public class AsyncHttpClientConfig {
                                   ExecutorService applicationThreadPool,
                                   ProxyServerSelector proxyServerSelector,
                                   SSLContext sslContext,
-                                  SSLEngineFactory sslEngineFactory,
                                   AsyncHttpProviderConfig<?, ?> providerConfig,
                                   ConnectionsPool<?, ?> connectionsPool, Realm realm,
                                   List<RequestFilter> requestFilters,
@@ -122,7 +120,8 @@ public class AsyncHttpClientConfig {
                                   int ioThreadMultiplier,
                                   boolean strict302Handling,
                                   boolean useRelativeURIsWithSSLProxies,
-                                  boolean rfc6265CookieEncoding) {
+                                  boolean rfc6265CookieEncoding,
+                                  boolean acceptAnyCertificate) {
 
         this.maxTotalConnections = maxTotalConnections;
         this.maxConnectionPerHost = maxConnectionPerHost;
@@ -138,7 +137,6 @@ public class AsyncHttpClientConfig {
         this.userAgent = userAgent;
         this.allowPoolingConnection = keepAlive;
         this.sslContext = sslContext;
-        this.sslEngineFactory = sslEngineFactory;
         this.providerConfig = providerConfig;
         this.connectionsPool = connectionsPool;
         this.realm = realm;
@@ -154,6 +152,7 @@ public class AsyncHttpClientConfig {
         this.strict302Handling = strict302Handling;
         this.useRelativeURIsWithSSLProxies = useRelativeURIsWithSSLProxies;
         this.rfc6265CookieEncoding = rfc6265CookieEncoding;
+        this.acceptAnyCertificate = acceptAnyCertificate;
 
         if (applicationThreadPool == null) {
             this.applicationThreadPool = Executors.newCachedThreadPool();
@@ -322,28 +321,6 @@ public class AsyncHttpClientConfig {
     }
 
     /**
-     * Return an instance of {@link SSLEngineFactory} used for SSL connection.
-     *
-     * @return an instance of {@link SSLEngineFactory} used for SSL connection.
-     */
-    public SSLEngineFactory getSSLEngineFactory() {
-        if (sslEngineFactory == null) {
-            return new SSLEngineFactory() {
-                public SSLEngine newSSLEngine() {
-                    if (sslContext != null) {
-                        SSLEngine sslEngine = sslContext.createSSLEngine();
-                        sslEngine.setUseClientMode(true);
-                        return sslEngine;
-                    } else {
-                        return null;
-                    }
-                }
-            };
-        }
-        return sslEngineFactory;
-    }
-
-    /**
      * Return the {@link com.ning.http.client.AsyncHttpProviderConfig}
      *
      * @return the {@link com.ning.http.client.AsyncHttpProviderConfig}
@@ -467,6 +444,17 @@ public class AsyncHttpClientConfig {
      * @return the {@link HostnameVerifier}
      */
     public HostnameVerifier getHostnameVerifier() {
+        if (hostnameVerifier == null) {
+            synchronized (this) {
+                if (hostnameVerifier == null)
+                    hostnameVerifier = acceptAnyCertificate ? new HostnameVerifier() {
+                        @Override
+                        public boolean verify(String hostname, SSLSession session) {
+                            return true;
+                        }
+                    } : new DefaultHostnameVerifier();
+            }
+        }
         return hostnameVerifier;
     }
 
@@ -523,6 +511,10 @@ public class AsyncHttpClientConfig {
         return rfc6265CookieEncoding;
     }
 
+    public boolean isAcceptAnyCertificate() {
+        return acceptAnyCertificate;
+    }
+
     /**
      * Builder for an {@link AsyncHttpClient}
      */
@@ -547,7 +539,6 @@ public class AsyncHttpClientConfig {
         private ExecutorService applicationThreadPool;
         private ProxyServerSelector proxyServerSelector = null;
         private SSLContext sslContext;
-        private SSLEngineFactory sslEngineFactory;
         private AsyncHttpProviderConfig<?, ?> providerConfig;
         private ConnectionsPool<?, ?> connectionsPool;
         private Realm realm;
@@ -559,10 +550,11 @@ public class AsyncHttpClientConfig {
         private boolean allowSslConnectionPool = true;
         private boolean useRawUrl = false;
         private boolean removeQueryParamOnRedirect = true;
-        private HostnameVerifier hostnameVerifier = new AllowAllHostnameVerifier();
+        private HostnameVerifier hostnameVerifier = new DefaultHostnameVerifier();
         private int ioThreadMultiplier = 2;
         private boolean strict302Handling;
         private boolean rfc6265CookieEncoding;
+        private boolean acceptAnyCertificate = Boolean.getBoolean(ASYNC_CLIENT + "acceptAnyCertificate");
 
         public Builder() {
         }
@@ -598,6 +590,16 @@ public class AsyncHttpClientConfig {
         public Builder setConnectionTimeoutInMs(int defaultConnectionTimeOutInMs) {
             this.defaultConnectionTimeOutInMs = defaultConnectionTimeOutInMs;
             return this;
+        }
+
+        /**
+         * Set the maximum time in millisecond an {@link com.ning.http.client.AsyncHttpClient} can wait when connecting to a remote host
+         *
+         * @param connectTimeout the maximum time in millisecond an {@link com.ning.http.client.AsyncHttpClient} can wait when connecting to a remote host
+         * @return a {@link Builder}
+         */
+        public Builder setConnectTimeout(int connectTimeout) {
+            return setConnectionTimeoutInMs(connectTimeout);
         }
 
         /**
@@ -639,6 +641,17 @@ public class AsyncHttpClientConfig {
         }
 
         /**
+         * Set the maximum time in millisecond an {@link com.ning.http.client.AsyncHttpClient} can stay idle.
+         *
+         * @param readTimeout
+         *         the maximum time in millisecond an {@link com.ning.http.client.AsyncHttpClient} can stay idle.
+         * @return a {@link Builder}
+         */
+        public Builder setReadTimeout(int readTimeout) {
+            return setIdleConnectionTimeoutInMs(readTimeout);
+        }
+
+        /**
          * Set the maximum time in millisecond an {@link com.ning.http.client.AsyncHttpClient} wait for a response
          *
          * @param defaultRequestTimeoutInMs the maximum time in millisecond an {@link com.ning.http.client.AsyncHttpClient} wait for a response
@@ -647,6 +660,16 @@ public class AsyncHttpClientConfig {
         public Builder setRequestTimeoutInMs(int defaultRequestTimeoutInMs) {
             this.defaultRequestTimeoutInMs = defaultRequestTimeoutInMs;
             return this;
+        }
+
+        /**
+         * Set the maximum time in millisecond an {@link com.ning.http.client.AsyncHttpClient} wait for a response
+         *
+         * @param requestTimeout the maximum time in millisecond an {@link com.ning.http.client.AsyncHttpClient} wait for a response
+         * @return a {@link Builder}
+         */
+        public Builder setRequestTimeout(int requestTimeout) {
+            return setRequestTimeoutInMs(requestTimeout);
         }
 
         /**
@@ -763,30 +786,12 @@ public class AsyncHttpClientConfig {
         }
 
         /**
-         * Set the {@link SSLEngineFactory} for secure connection.
-         *
-         * @param sslEngineFactory the {@link SSLEngineFactory} for secure connection
-         * @return a {@link Builder}
-         */
-        public Builder setSSLEngineFactory(SSLEngineFactory sslEngineFactory) {
-            this.sslEngineFactory = sslEngineFactory;
-            return this;
-        }
-
-        /**
          * Set the {@link SSLContext} for secure connection.
          *
          * @param sslContext the {@link SSLContext} for secure connection
          * @return a {@link Builder}
          */
         public Builder setSSLContext(final SSLContext sslContext) {
-            this.sslEngineFactory = new SSLEngineFactory() {
-                public SSLEngine newSSLEngine() throws GeneralSecurityException {
-                    SSLEngine sslEngine = sslContext.createSSLEngine();
-                    sslEngine.setUseClientMode(true);
-                    return sslEngine;
-                }
-            };
             this.sslContext = sslContext;
             return this;
         }
@@ -1043,6 +1048,11 @@ public class AsyncHttpClientConfig {
            return this;
         }
 
+        public Builder setAcceptAnyCertificates(boolean acceptAnyCertificate) {
+            this.acceptAnyCertificate = acceptAnyCertificate;
+            return this;
+        }
+
         /**
          * Configures this AHC instance to use RFC 6265 cookie encoding style
          *
@@ -1076,7 +1086,6 @@ public class AsyncHttpClientConfig {
             realm = prototype.getRealm();
             defaultRequestTimeoutInMs = prototype.getRequestTimeoutInMs();
             sslContext = prototype.getSSLContext();
-            sslEngineFactory = prototype.getSSLEngineFactory();
             userAgent = prototype.getUserAgent();
             redirectEnabled = prototype.isRedirectEnabled();
             compressionEnabled = prototype.isCompressionEnabled();
@@ -1099,6 +1108,7 @@ public class AsyncHttpClientConfig {
             hostnameVerifier = prototype.getHostnameVerifier();
             strict302Handling = prototype.isStrict302Handling();
             rfc6265CookieEncoding = prototype.isRfc6265CookieEncoding();
+            acceptAnyCertificate = prototype.acceptAnyCertificate;
         }
 
         /**
@@ -1160,7 +1170,6 @@ public class AsyncHttpClientConfig {
                     applicationThreadPool,
                     proxyServerSelector,
                     sslContext,
-                    sslEngineFactory,
                     providerConfig,
                     connectionsPool,
                     realm,
@@ -1176,7 +1185,8 @@ public class AsyncHttpClientConfig {
                     ioThreadMultiplier,
                     strict302Handling,
                     useRelativeURIsWithSSLProxies,
-                    rfc6265CookieEncoding);
+                    rfc6265CookieEncoding,
+                    acceptAnyCertificate);
         }
     }
 }

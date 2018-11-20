@@ -9,31 +9,18 @@
     <groupId>com.ning</groupId>
     <artifactId>async-http-client</artifactId>
     <name>Asynchronous Http Client</name>
-    <version>1.7.25-SNAPSHOT</version>
+    <version>1.7.24-jenkins-1-SNAPSHOT</version>
     <packaging>jar</packaging>
     <description>
         Async Http Client library purpose is to allow Java applications to easily execute HTTP requests and
         asynchronously process the HTTP responses.
     </description>
-    <url>http://github.com/AsyncHttpClient/async-http-client</url>
+    <url>https://github.com/jenkinsci/async-http-client</url>
     <scm>
-        <connection>scm:git:git@github.com:AsyncHttpClient/async-http-client.git</connection>
-        <url>https://github.com/AsyncHttpClient/async-http-client</url>
-        <developerConnection>scm:git:git@github.com:AsyncHttpClient/async-http-client.git</developerConnection>
+        <connection>scm:git:git://github.com/jenkinsci//async-http-client.git</connection>
+        <url>scm:git:git@github.com:jenkinsci/async-http-client</url>
+        <developerConnection>https://github.com/jenkinsci/async-http-client.git</developerConnection>
     </scm>
-    <issueManagement>
-        <system>jira</system>
-        <url>https://issues.sonatype.org/browse/AHC</url>
-    </issueManagement>
-    <mailingLists>
-        <mailingList>
-            <name>asynchttpclient</name>
-            <archive>http://groups.google.com/group/asynchttpclient/topics</archive>
-            <subscribe>http://groups.google.com/group/asynchttpclient/subscribe</subscribe>
-            <unsubscribe>http://groups.google.com/group/asynchttpclient/subscribe</unsubscribe>
-            <post>asynchttpclient@googlegroups.com</post>
-        </mailingList>
-    </mailingLists>
 
     <prerequisites>
         <maven>2.0.9</maven>
@@ -73,7 +60,7 @@
     <licenses>
         <license>
             <name>Apache License 2.0</name>
-            <url>http://www.apache.org/licenses/LICENSE-2.0.html</url>
+            <url>https://www.apache.org/licenses/LICENSE-2.0.html</url>
             <distribution>repo</distribution>
         </license>
     </licenses>
@@ -81,7 +68,7 @@
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty</artifactId>
-            <version>3.9.0.Final</version>
+            <version>3.9.5.Final</version>
         </dependency>
 
         <dependency>
@@ -380,7 +367,7 @@
                     <encoding>UTF-8</encoding>
                     <maxmemory>1g</maxmemory>
                     <links>
-                        <link>http://java.sun.com/javase/6/docs/api/</link>
+                        <link>https://java.sun.com/javase/6/docs/api/</link>
                     </links>
                     <excludePackageNames>${javadoc.package.exclude}</excludePackageNames>
                 </configuration>
@@ -440,7 +427,7 @@
                 <encoding>UTF-8</encoding>
                 <maxmemory>1g</maxmemory>
                 <links>
-                    <link>http://java.sun.com/javase/6/docs/api/</link>
+                    <link>https://java.sun.com/javase/6/docs/api/</link>
                 </links>
                 <excludePackageNames>${javadoc.package.exclude}</excludePackageNames>
                 <bootclasspath>${sun.boot.class.path}</bootclasspath>
@@ -565,28 +552,23 @@
     </profiles>
     <distributionManagement>
         <repository>
-            <id>sonatype-nexus-staging</id>
-            <name>Sonatype Release</name>
-            <url>http://oss.sonatype.org/service/local/staging/deploy/maven2</url>
+            <uniqueVersion>false</uniqueVersion>
+            <id>maven.jenkins-ci.org</id>
+            <url>https://repo.jenkins-ci.org/releases/</url>
         </repository>
         <snapshotRepository>
-            <id>sonatype-nexus-snapshots</id>
-            <name>sonatype-nexus-snapshots</name>
-            <url>${distMgmtSnapshotsUrl}</url>
+            <id>maven.jenkins-ci.org</id>
+            <url>https://repo.jenkins-ci.org/snapshots/</url>
         </snapshotRepository>
-        <site>
-            <id>github</id>
-            <url>gitsite:git@github.com/AsyncHttpClient/async-http-client.git</url>
-        </site>
     </distributionManagement>
     <repositories>
         <repository>
-            <id>maven.java.net</id>
-            <url>https://maven.java.net/content/repositories/releases</url>
+            <id>repo.jenkins-ci.org</id>
+            <url>https://repo.jenkins-ci.org/public/</url>
         </repository>
     </repositories>
     <properties>
-        <distMgmtSnapshotsUrl>http://oss.sonatype.org/content/repositories/snapshots</distMgmtSnapshotsUrl>
+        <distMgmtSnapshotsUrl>https://repo.jenkins-ci.org/snapshots/</distMgmtSnapshotsUrl>
         <surefire.redirectTestOutputToFile>true</surefire.redirectTestOutputToFile>
         <compiler.exclude>com/ning/http/client/providers/grizzly/*.java</compiler.exclude>
         <test.compiler.exclude>com/ning/http/client/async/grizzly/*.java</test.compiler.exclude>

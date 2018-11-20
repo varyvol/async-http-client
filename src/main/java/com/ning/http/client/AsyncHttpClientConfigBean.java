@@ -75,6 +75,7 @@ public class AsyncHttpClientConfigBean extends AsyncHttpClientConfig {
                 return true;
             }
         };
+        acceptAnyCertificate = Boolean.getBoolean(ASYNC_CLIENT + "acceptAnyCertificate");
     }
 
     void configureExecutors() {
@@ -165,11 +166,6 @@ public class AsyncHttpClientConfigBean extends AsyncHttpClientConfig {
         return this;
     }
 
-    public AsyncHttpClientConfigBean setSslEngineFactory(SSLEngineFactory sslEngineFactory) {
-        this.sslEngineFactory = sslEngineFactory;
-        return this;
-    }
-
     public AsyncHttpClientConfigBean setProviderConfig(AsyncHttpProviderConfig<?, ?> providerConfig) {
         this.providerConfig = providerConfig;
         return this;
@@ -232,6 +228,11 @@ public class AsyncHttpClientConfigBean extends AsyncHttpClientConfig {
 
     public AsyncHttpClientConfigBean setIoThreadMultiplier(int ioThreadMultiplier) {
         this.ioThreadMultiplier = ioThreadMultiplier;
+        return this;
+    }
+
+    public AsyncHttpClientConfigBean setAcceptAnyCertificate(boolean acceptAnyCertificate) {
+        this.acceptAnyCertificate = acceptAnyCertificate;
         return this;
     }
 }
