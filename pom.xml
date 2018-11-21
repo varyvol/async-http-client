@@ -248,23 +248,19 @@
                 </executions>
             </plugin>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
-                <version>1.0-beta-1</version>
                 <executions>
                     <execution>
-                        <id>enforce-versions</id>
-                        <goals>
-                            <goal>enforce</goal>
-                        </goals>
+                        <id>display-info</id>
                         <configuration>
                             <rules>
-                                <requireMavenVersion>
-                                    <version>2.0.9</version>
-                                </requireMavenVersion>
-                                <requireJavaVersion>
-                                    <version>1.5</version>
-                                </requireJavaVersion>
+                                <enforceBytecodeVersion>
+                                    <excludes combine.children="append">
+                                        <exclude>org.glassfish.grizzly:grizzly-websockets</exclude>
+                                        <exclude>org.glassfish.grizzly:grizzly-framework</exclude>
+                                        <exclude>org.glassfish.grizzly:grizzly-http</exclude>
+                                    </excludes>
+                                </enforceBytecodeVersion>
                             </rules>
                         </configuration>
                     </execution>
@@ -436,6 +432,7 @@
         </profile>
     </profiles>
     <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <surefire.redirectTestOutputToFile>true</surefire.redirectTestOutputToFile>
         <compiler.exclude>com/ning/http/client/providers/grizzly/*.java</compiler.exclude>
         <test.compiler.exclude>com/ning/http/client/async/grizzly/*.java</test.compiler.exclude>
