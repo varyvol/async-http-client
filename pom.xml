@@ -441,6 +441,7 @@
         <target.property>1.5</target.property>
         <surefire.version>2.12</surefire.version>
         <java.level>5</java.level>
+        <findbugs.failOnError>false</findbugs.failOnError>
     </properties>
 </project>
 
