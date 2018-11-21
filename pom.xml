@@ -407,6 +407,34 @@
         </plugin>
       </plugins>
     </reporting>
+    <profiles>
+        <profile>
+            <id>grizzly</id>
+            <activation>
+                <jdk>[1.6,)</jdk>
+            </activation>
+            <properties>
+                <compiler.exclude>asdfasfd/**</compiler.exclude>
+                <test.compiler.exclude>asdfasdf/**</test.compiler.exclude>
+                <javadoc.package.exclude>asdfasdf</javadoc.package.exclude>
+                <target.property>1.5</target.property>
+            </properties>
+            <dependencies>
+                <dependency>
+                    <groupId>org.glassfish.grizzly</groupId>
+                    <artifactId>grizzly-websockets</artifactId>
+                    <version>2.3.10</version>
+                    <optional>true</optional>
+                </dependency>
+                <dependency>
+                    <groupId>org.glassfish.grizzly</groupId>
+                    <artifactId>grizzly-http-server</artifactId>
+                    <version>2.3.10</version>
+                    <scope>test</scope>
+                </dependency>
+            </dependencies>
+        </profile>
+    </profiles>
     <properties>
         <surefire.redirectTestOutputToFile>true</surefire.redirectTestOutputToFile>
         <compiler.exclude>com/ning/http/client/providers/grizzly/*.java</compiler.exclude>
